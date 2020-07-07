@@ -592,11 +592,11 @@
 
 ### 单行函数
 
- - 单行函数严格来讲并不属于SQL语法，但是针对不同的数据库，首先SQL这个标准一定会共同遵守的，但是每个数据库都有每一个数据库自己定义的函数，利用函数，可以完成一些指定的操作功能。那么在Oracle之中单行函数一共分为5类：
+ 1. 单行函数严格来讲并不属于SQL语法，但是针对不同的数据库，首先SQL这个标准一定会共同遵守的，但是每个数据库都有每一个数据库自己定义的函数，利用函数，可以完成一些指定的操作功能。那么在Oracle之中单行函数一共分为5类：
 
-    - **字符串函数**
+    #### **字符串函数**
 
-       - 大小写控制字符
+       1. 大小写控制字符
 
           - LOWER ：将字符全部转换乘小写
 
@@ -617,7 +617,7 @@
 
             
 
-       - 字符控制函数
+       2. 字符控制函数
 
           - CONCAT：连接两个单词。作用跟“||”类似
 
@@ -707,14 +707,14 @@
 
             
 
-    - **数字函数**
+  #### **数字函数**
 
        - ROUND：四舍五入
-
+    
        - TRUNC：截断
-
+    
        - MOD：求余
-
+    
          ``` plsql
          SQL> select round(45.926, 2), trunc(45.926, 2), MOD(1600, 300) from dual;
          
@@ -723,16 +723,17 @@
                    45.93           45.92           100
          ```
 
-         
 
-    - **日期函数** 数据库中的日期实际上含有两个值，日期和时间
+​         
 
+    #### **日期函数** 数据库中的日期实际上含有两个值，日期和时间
+    
        - 日期的数学运算
-
+    
           - 在日期上加上或减去一个日期，其结果仍为日期。
           - 两个日期相减返回日期之间相差的天数。
           - 可以用数字除以24来向日期中加上或减去天数。
-
+    
          ``` plsql
          SQL> select last_name, hire_date, (sysdate - hire_date)/7 as weeks        # 两个数据相减仍为日期，天数除以7 ，显示星期的个数
            2  from employees
@@ -744,7 +745,7 @@
          Kochhar                   1989/09/21  1606.68326
          De Haan                   1993/01/13  1433.82611
          ```
-
+    
          | 函数           | 描述                             |
          | -------------- | -------------------------------- |
          | MONTHS_BETWEEN | 两个日期相差的月数               |
@@ -753,9 +754,9 @@
          | LAST_DAY       | 本月的最后一天                   |
          | ROUND          | 日期四舍五入                     |
          | TRUNC          | 日期截断                         |
-
+    
          - 两个日期相差的月数的例子
-
+    
            ``` plsql
            SQL> select months_between(sysdate, '2019/01/12') from dual;
            
@@ -763,9 +764,9 @@
            ------------------------------------
                                17.8318499850657
            ```
-
+    
          - 向日期中加上若干个月数
-
+    
            ``` plsql
            SQL> select add_months(sysdate, 5) from dual;
            
@@ -773,9 +774,9 @@
            ---------------------
            2020/12/06 18:54:54
            ```
-
+    
          - 指定日期的下一个星期，对应的日期
-
+    
            ``` plsql
            SQL> select next_day(sysdate, '金曜日') from dual;　　　　　　# 从sysdate日期开始，下一个星期五是几号
            
@@ -783,9 +784,9 @@
            -----------------------
            2020/07/10 18:58:11
            ```
-
+    
          - 本月最后一天
-
+    
            ``` plsql
            SQL> select last_day(sysdate) from dual;
            
@@ -793,9 +794,9 @@
            -----------------
            2020/07/31 19:00:
            ```
-
+    
          - 日期的四舍五入
-
+    
            ``` plsql
            SQL> select round(sysdate, 'YEAR') from dual;
            
@@ -803,9 +804,9 @@
            ---------------------
            2021/01/01
            ```
-
+    
          - 日期截断
-
+    
            ``` plsql
            SQL> select trunc(sysdate, 'MONTH') from dual;       # 从month之后的日期和时间就不在需要
            
@@ -820,28 +821,29 @@
            2020/07/06
            ```
 
-           
 
-    - **转换函数** 
+​           
 
+    #### **转换函数** 
+    
        - 隐性转换
-
-         ![](assets\2020-07-06 190800.jpg)
-
+    
+         <img src="assets\2020-07-06 190800.jpg" style="zoom: 80%;" />
+    
        - 显性转换
-
-         ![](assets\2020-07-06 190931.jpg)
-
-         - TO_CHAR 函数对日期的转换
-
+    
+         <img src="assets\2020-07-06 190931.jpg" style="zoom:80%;" />
+    
+         1. TO_CHAR 函数对日期的转换
+    
            - 格式
-
+    
              - 必须包含在单引号中，而且大小写敏感。
              - 可以包含任意的有效的日期格式。
              - 日期之间用逗号隔开。
-
+    
            - 实例
-
+    
              ``` plsql
              SQL> select to_char(sysdate,'yyyy-mm-dd hh:mi:ss') from dual;    
              
@@ -849,14 +851,630 @@
              -------------------------------------
              2020-07-06 07:13:31
              ```
+    
+         - 日期的格式元素
+    
+           | YYYY  | 2014                  |
+           | ----- | --------------------- |
+           | YEAR  | TWO THOUSAND AND FOUR |
+           | MM    | 02                    |
+           | MONTH | JULY                  |
+           | MON   | JUL                   |
+           | DY    | MON                   |
+           | DAY   | MONDAY                |
+           | DD    | 02                    |
+    
+           ```plsql
+           SQL> select to_char(sysdate, 'HH24:MI:SS AM') FROM DUAL;
+           
+           TO_CHAR(SYSDATE,'HH24:MI:SSAM')
+           -------------------------------
+           10:15:38 午前
+           ```
+    
+           ``` plsql
+           SQL> select last_name, to_char(hire_date, 'dd month yyyy') as "HIREDATE" 
+             2  FROM EMPLOYEES;
+           
+           LAST_NAME                 HIREDATE
+           ------------------------- ----------------
+           King                      17 6月  1987
+           Kochhar                   21 9月  1989	
+           ```
+    
+       2. TO_DATE 函数对字符的转换
+    
+       3. TO_CHAR 函数对数字的转换
+    
+         - ``` plsql
+           TO_CHAR(NUMBER,'FORMAT_MODEL')	
+           ```
+    
+         - 经常使用到的几种格式
+    
+           | 9    | 数字         |
+           | ---- | ------------ |
+           | 0    | 零           |
+           | $    | 美元符号     |
+           | L    | 本地货币符号 |
+           | .    | 小数点       |
+           | ,    | 千位符       |
+    
+         - 使用实例
+    
+           ``` plsql
+           SQL> select to_char(salary, '$99,999,00') SALARY
+             2  from employees
+             3  where last_name = 'Ernst';
+           
+           SALARY
+           -----------
+                $60,00
+           ```
+    
+       4. TO_NUMBER 函数对字符的转换
+    
+         - ``` plsql
+           TO_NUMBER(CHAR, 'FORMAT_MODEL');
+           ```
 
-             
 
-    - **通用函数**
+​    
+           
+
+   #### **通用函数**  
+    - 这些函数适用与任何数据类型，同时也适用与空值
+    
+         - NVL(expr1， expr2)
+         - NVL2(expr1, expr2, expr3)
+         - NULLIF(expr1, expr2)
+         - COALESCE(expr1, expr2,... , exprn)
+
+ 1. NVL 函数
+
+   - 将空值转化乘一个已知的值：可以是数字，日期，字符。
+
+     ```plsql
+     SQL> select last_name, salary, commission_pct, nvl(commission_pct, 0) 
+       2  from employees;
+     
+     LAST_NAME                     SALARY COMMISSION_PCT NVL(COMMISSION_PCT,0)
+     ------------------------- ---------- -------------- ---------------------
+     King                        24000.00                                    0
+     Kochhar                     17000.00                                    0
+     De Haan                     17000.00                                    0
+     Hunold                       9000.00                                    0
+     Ernst                        6000.00                                    0
+     Lorentz                      4200.00                                    0
+     Mourgos                      5800.00                                    0
+     Rajs                         3500.00                                    0
+     Davies                       3100.00                                    0
+     Matos                        2600.00                                    0
+     Vargas                       2500.00                                    0
+     Zlotkey                     10500.00           0.20                   0.2
+     ```
+
+ 2. NVL2函数 NVL2(expr1, expr2, expr3)
+
+   - 如果expr1 不为NULL,则执行expr2， 反之则执行 expr3
+
+     ``` plsql
+     SQL> select last_name, department_id, commission_pct, nvl2(commission_pct, 'SAL+COMM', 'SAL') income
+       2  from employees
+       3  where department_id between 50 and 80
+       4  ;
+     
+     LAST_NAME                 DEPARTMENT_ID COMMISSION_PCT INCOME
+     ------------------------- ------------- -------------- --------
+     Hunold                               60                SAL
+     Ernst                                60                SAL
+     Lorentz                              60                SAL
+     Mourgos                              50                SAL
+     Rajs                                 50                SAL
+     Davies                               50                SAL
+     Matos                                50                SAL
+     Vargas                               50                SAL
+     Zlotkey                              80           0.20 SAL+COMM
+     Abel                                 80           0.30 SAL+COMM
+     ```
+
+ - NULLIF函数 NULLIF(expr1, expr2) 
+
+   - 如果expr1 和 expr2 相等，则返回null，否则返回expr1.
+
+     ``` plsql
+     SQL> select first_name, LENGTH(first_name) "expr1", last_name, LENGTH(last_name) "expr2", NULLIF(length(first_name), length(last_name))
+       2  from employees
+       3  ;
+     
+     FIRST_NAME                expr1 LAST_NAME                      expr2 NULLIF(LENGTH(FIRST_NAME),LENGTH(LAST_NAME))
+     -------------------- ---------- ------------------------- ---------- --------------------------------------------
+     Steven                        6 King                               4                                            6
+     Neena                         5 Kochhar                            7                                            5
+     Lex                           3 De Haan                            7                                            3
+     Alexander                     9 Hunold                             6                                            9
+     Bruce                         5 Ernst                              5 
+     Diana                         5 Lorentz                            7                                            5
+     ```
+
+ 3. COALESCE 函数
+
+   - 与NVL相比，可以处理交替的多个值。如果第一个表达式 为空，则返回下一个表达式。
+
+     ``` plsql
+     SQL> SELECT   last_name,
+       2           COALESCE(commission_pct, salary, 10) comm
+       3  FROM     employees
+       4  ORDER BY commission_pct;
+     
+     LAST_NAME                       COMM
+     ------------------------- ----------
+     Grant                           0.15
+     Taylor                           0.2
+     ```
+
+#### 条件表达式
+
+  - 在sql 中使用if-then-else 表达式
+
+    1. CASE 表达式
+
+      - ``` plsql
+        CASE expr1 WHEN comparison_expr1 THEN return_expr1
+        	[WHEN comparison_expr2 THEN return_expr2
+            WHEN comparison_expr3 THEN return_expr3
+            ELSE else_expr]
+        END
+        ```
+
+      - ``` PLSQL
+        SQL> select last_name, department_id,
+          2  case department_id
+          3       when 10 then salary * 1.1
+          4       when 20 then salary * 1.2
+          5       when 30 then salary * 1.3
+          6       else salary
+          7  end  AS "NEWSALARY"
+          8  from employees
+          9  ;
+        
+        LAST_NAME                 DEPARTMENT_ID  NEWSALARY
+        ------------------------- ------------- ----------
+        King                                 90      24000
+        Kochhar                              90      17000
+        De Haan                              90      17000
+        ```
+
+    2. DECODE 函数
+
+      - ``` plsql
+        DECODE(col|expression, search1, result1 ,
+              			   [, search2, result2,...,]
+              			   [, default])
+        
+        ```
+
+      - ``` plsql
+        SQL> select last_name, job_id,
+          2  decode(department_id, 10, salary *1.1,
+          3                        20, salary *1.2,
+          4                        30, salary *1.3,
+          5                            salary)
+          6  from employees;
+        
+        LAST_NAME                 JOB_ID     DECODE(DEPARTMENT_ID,10,SALARY*1.1,20,SALARY*1.2,30,SALARY*1.3,SALARY)
+        ------------------------- ---------- ----------------------------------------------------------------------
+        King                      AD_PRES                                                                     24000
+        Kochhar                   AD_VP                                                                       17000
+        De Haan                   AD_VP                                                                       17000
+        Hunold                    IT_PROG                                                                      9000
+        Ernst                     IT_PROG                                                                      6000
+        ```
+
+#### 嵌套函数
+
+  - 单行函数是可以嵌套的
+  - 嵌套函数的执行顺序是从内部往外部开始的。
 
 ### 多行函数
 
 ## 第五章	多表查询
+
+从多个表中获取数据
+
+<img src="assets\2020-07-07 145519.jpg" style="zoom:80%;" />
+
+笛卡尔集错误
+
+由于省略了连接条件，或是连接条件无效，导致表中的所有的行互相连接。 解决办法：**添加有效的连接条件**
+
+### Oracle 连接
+
+ - ``` plsql
+   SELECT	table1.column, table2.column
+   FROM	table1, table2
+   WHERE	table1.column1 = table2.column2;
+   ```
+
+- 在where中写入连接条件。
+
+ - 在表中有相同的列时，在列名之前加上**表名前缀**。
+
+    - 表名前缀：用来区分表中相同的列，在不同的表中具有相同的列名的时候可以用**表的别名**来区分。
+   - 表的别名：使用表的别名可以简化查询，提供查询的执行效率。
+
+ - where 中多个条件连接的时候，要用and 操作符。
+
+   	- 连接n 个表时，至少需要n-1 个连接条件。
+
+- ```plsq
+  -- 查出公司员工的last_name, department_name, city
+  select e.last_name, d.department_name, l.city
+  from employees e, departments d, locations l
+  where e.department_id = d.department_id and d.location_id = l.location_id
+  
+  LAST_NAME                 DEPARTMENT_NAME                CITY
+  ------------------------- ------------------------------ ------------------------------
+  King                      Executive                      Seattle
+  Kochhar                   Executive                      Seattle
+  De Haan                   Executive                      Seattle
+  Hunold                    IT                             Southlake
+  Ernst                     IT                             Southlake
+  Lorentz                   IT                             Southlake
+  Mourgos                   Shipping                       South San Francisco
+  Rajs                      Shipping                       South San Francisco
+  Davies                    Shipping                       South San Francisco
+  Matos                     Shipping                       South San Francisco
+  Vargas                    Shipping                       South San Francisco
+  Zlotkey                   Sales                          Oxford
+  Abel                      Sales                          Oxford
+  Taylor                    Sales                          Oxford
+  Whalen                    Administration                 Seattle
+  Hartstein                 Marketing                      Toronto
+  Fay                       Marketing                      Toronto
+  Higgins                   Accounting                     Seattle
+  Gietz                     Accounting                     Seattle
+  
+  19 rows selected
+  ```
+
+
+
+### 非等值连接
+
+ - ``` plsql
+   SQL> select e.last_name, e.salary, j.grade_level
+     2  from employees e, job_grades j
+     3  where e.salary
+     4        between j.lowest_sal and j.highest_sal;
+   
+   LAST_NAME                     SALARY GRADE_LEVEL
+   ------------------------- ---------- -----------
+   Vargas                       2500.00 A
+   Matos                        2600.00 A
+   Vargas                       2500.00 A
+   ```
+
+
+
+### 外连接
+
+ - 内连接：合并具有同一列的两个以上的表的行，结果集中不包含一个表与另一个表不匹配的行。
+
+ - 外连接：两个表在连接过程中除了返回满足连接条件的行以外**还返回左或右表中不满足条件的行**，这种连接称为左或右外连接。没有匹配的行时，结果表中相应的列为空（null），外连接的where字句条件类似于内连接，但是连接条件中没有匹配行的表的列后面要加上外连接符，即用**圆括号括起来的加号**。
+
+ - 外连接语法 **加号在左边，右连接；加号在右边，左连接**。
+
+    - 右外连接
+
+      ``` plsql
+      SELECT	table1.column, table2.column
+      FROM	table1, table2
+      WHERE	table1.column(+) = table2.column;
+      ```
+
+   - ``` plsql
+     SQL> select e.last_name, e.department_id, d.department_name
+       2  from employees e, departments d
+       3  where e.department_id(+) = d.department_id;
+     
+     LAST_NAME                 DEPARTMENT_ID DEPARTMENT_NAME
+     ------------------------- ------------- ------------------------------
+     King                                 90 Executive
+     Kochhar                              90 Executive
+     De Haan                              90 Executive
+     Hunold                               60 IT
+     Ernst                                60 IT
+     Lorentz                              60 IT
+     Mourgos                              50 Shipping
+     Rajs                                 50 Shipping
+     Davies                               50 Shipping
+     Matos                                50 Shipping
+     Vargas                               50 Shipping
+     Zlotkey                              80 Sales
+     Abel                                 80 Sales
+     Taylor                               80 Sales
+     Whalen                               10 Administration
+     Hartstein                            20 Marketing
+     Fay                                  20 Marketing
+     Higgins                             110 Accounting
+     Gietz                               110 Accounting
+                                             Contracting
+     
+     20 rows selected
+     ```
+
+   - 左外连接
+
+     ``` plsql
+     SELECT	table1.column, table2.column
+     FROM	table1, table2
+     WHERE	table1.column = table2.column(+);
+     ```
+
+   - ``` plsql
+     SQL> select e.last_name, e.department_id, d.department_name
+       2  from employees e, departments d
+       3  where e.department_id = d.department_id(+);
+     
+     LAST_NAME                 DEPARTMENT_ID DEPARTMENT_NAME
+     ------------------------- ------------- ------------------------------
+     Whalen                               10 Administration
+     Fay                                  20 Marketing
+     Hartstein                            20 Marketing
+     Vargas                               50 Shipping
+     Matos                                50 Shipping
+     Davies                               50 Shipping
+     Rajs                                 50 Shipping
+     Mourgos                              50 Shipping
+     Lorentz                              60 IT
+     Ernst                                60 IT
+     Hunold                               60 IT
+     Taylor                               80 Sales
+     Abel                                 80 Sales
+     Zlotkey                              80 Sales
+     De Haan                              90 Executive
+     Kochhar                              90 Executive
+     King                                 90 Executive
+     Gietz                               110 Accounting
+     Higgins                             110 Accounting
+     Grant                                   
+     
+     20 rows selected
+     ```
+
+### 自连接
+
+​	<img src="F:\gitHub\Oracle\assets\2020-07-07 153721.jpg" style="zoom:80%;" />
+
+``` plsq;
+SQL> select worker.last_name || 'works for' || manager.last_name
+  2  from employees worker, employees manager
+  3  where worker.manager_id = manager.employee_id;
+
+WORKER.LAST_NAME||'WORKSFOR'||MANAGER.LAST_NAME
+-----------------------------------------------------------
+Hartsteinworks forKing
+Zlotkeyworks forKing
+Mourgosworks forKing
+De Haanworks forKing
+Kochharworks forKing
+Higginsworks forKochhar
+```
+
+### 1999语法连接
+
+#### CROSS JOIN 叉集 
+
+``` plsql
+select last_name, department_name
+from employees
+cross join departments;
+```
+
+#### NATURAL JOIN 
+
+ - 会以两个表中具有相同名字的列为条件创建等值连接。
+
+ - 在表中查询满足等值条件的数据
+
+ - 如果只是列名相同而数据类型不同，会产生错误。
+
+ - ``` plsql
+   SQL> select department_id, department_name
+     2  from employees
+     3  natural join departments;
+   
+   DEPARTMENT_ID DEPARTMENT_NAME
+   ------------- ------------------------------
+              90 Executive
+              90 Executive
+              60 IT
+              60 IT
+              50 Shipping
+              50 Shipping
+              50 Shipping
+              50 Shipping
+              80 Sales
+              80 Sales
+              20 Marketing
+             110 Accounting
+   
+   12 rows selected
+   
+   ```
+
+#### USING
+
+ - 在使用natural join 字句创建等值连接时，可以使用**using**字句指定等值连接中需要用到的列。
+
+ - 使用using 可以在有多个列满足条件时进行选择。
+
+ - 不要给选中的列加上表名前缀或是别名
+
+ - join 和 using 字句经常搭配使用。
+
+ - ``` plsql
+   SQL> select last_name, department_id
+     2  from employees
+     3  join departments using (department_id)
+     4  ;
+   
+   LAST_NAME                 DEPARTMENT_ID
+   ------------------------- -------------
+   King                                 90
+   Kochhar                              90
+   De Haan                              90
+   Hunold                               60
+   ```
+
+#### ON 常用
+
+ - 自然连接中具有相同名字的列为连接条件
+
+ - 可以使用on字句指定额外的连接条件
+
+ - 这个连接条件与其他连接条件分开
+
+ - ON 子句使语句具有更高的易读性。
+
+ - ``` plsql
+   SQL> select last_name, city, department_name
+     2  from employees e
+     3  join departments d
+     4  on d.department_id = e.department_id        
+     5  join locations l
+     6  on l.location_id = d.location_id;
+   
+   LAST_NAME                 CITY                           DEPARTMENT_NAME
+   ------------------------- ------------------------------ ------------------------------
+   King                      Seattle                        Executive
+   Kochhar                   Seattle                        Executive
+   De Haan                   Seattle                        Executive
+   Hunold                    Southlake                      IT
+   Ernst                     Southlake                      IT
+   Lorentz                   Southlake                      IT
+   Mourgos                   South San Francisco            Shipping
+   Rajs                      South San Francisco            Shipping
+   Davies                    South San Francisco            Shipping
+   Matos                     South San Francisco            Shipping
+   ```
+
+#### 内连接和外连接
+
+ - 在sql：1999中，内连接只返回满足条件的数据。
+
+ - 两个表在连接的过程中除了返回满足条件的行以外，还返回左或右不满足条件的行，成为**左或右外连接**。
+
+    - 左外连接
+
+      ``` plsql
+      select e.last_name, e.department_id, d.department_name
+      from employees e
+      left outer join departments d
+      on d.department_id = e.department_id
+      
+      SQL> /
+      
+      LAST_NAME                 DEPARTMENT_ID DEPARTMENT_NAME
+      ------------------------- ------------- ------------------------------
+      Whalen                               10 Administration
+      Fay                                  20 Marketing
+      Hartstein                            20 Marketing
+      Vargas                               50 Shipping
+      Matos                                50 Shipping
+      Davies                               50 Shipping
+      Rajs                                 50 Shipping
+      Mourgos                              50 Shipping
+      Lorentz                              60 IT
+      Ernst                                60 IT
+      Hunold                               60 IT
+      Taylor                               80 Sales
+      Abel                                 80 Sales
+      Zlotkey                              80 Sales
+      De Haan                              90 Executive
+      Kochhar                              90 Executive
+      King                                 90 Executive
+      Gietz                               110 Accounting
+      Higgins                             110 Accounting
+      ```
+
+   - 右外连接
+
+     ``` plsql
+     select e.last_name, e.department_id, d.department_name
+     from employees e
+     right outer join departments d
+     on d.department_id = e.department_id
+     
+     SQL> /
+     
+     LAST_NAME                 DEPARTMENT_ID DEPARTMENT_NAME
+     ------------------------- ------------- ------------------------------
+     King                                 90 Executive
+     Kochhar                              90 Executive
+     De Haan                              90 Executive
+     Hunold                               60 IT
+     Ernst                                60 IT
+     Lorentz                              60 IT
+     Mourgos                              50 Shipping
+     Rajs                                 50 Shipping
+     Davies                               50 Shipping
+     Matos                                50 Shipping
+     Vargas                               50 Shipping
+     Zlotkey                              80 Sales
+     Abel                                 80 Sales
+     Taylor                               80 Sales
+     Whalen                               10 Administration
+     Hartstein                            20 Marketing
+     Fay                                  20 Marketing
+     Higgins                             110 Accounting
+     Gietz                               110 Accounting
+                                             Contracting
+     
+     ```
+
+     
+
+ - 两个表在连接的过程中返回不满足条件的连接，成为**满外连接**。
+
+    - 满外连接
+
+      ``` plsql
+      select e.last_name, e.department_id, d.department_name
+      from employees e
+      full outer join departments d
+      on d.department_id = e.department_id
+      
+      LAST_NAME                 DEPARTMENT_ID DEPARTMENT_NAME
+      ------------------------- ------------- ------------------------------
+      King                                 90 Executive
+      Kochhar                              90 Executive
+      De Haan                              90 Executive
+      Hunold                               60 IT
+      Ernst                                60 IT
+      Lorentz                              60 IT
+      Mourgos                              50 Shipping
+      Rajs                                 50 Shipping
+      Davies                               50 Shipping
+      Matos                                50 Shipping
+      Vargas                               50 Shipping
+      Zlotkey                              80 Sales
+      Abel                                 80 Sales
+      Taylor                               80 Sales
+      Grant                                   
+      Whalen                               10 Administration
+      Hartstein                            20 Marketing
+      Fay                                  20 Marketing
+      Higgins                             110 Accounting
+      Gietz                               110 Accounting
+      
+      LAST_NAME                 DEPARTMENT_ID DEPARTMENT_NAME
+      ------------------------- ------------- ------------------------------
+                                              Contracting
+      ```
+
+      
 
 ## 第六章	分组函数
 
