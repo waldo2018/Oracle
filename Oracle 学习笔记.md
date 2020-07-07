@@ -920,7 +920,7 @@
 
 
 ​    
-           
+​           
 
    #### **通用函数**  
     - 这些函数适用与任何数据类型，同时也适用与空值
@@ -1440,7 +1440,7 @@ cross join departments;
 
     - 满外连接
 
-      ``` plsql
+      ``` sql
       select e.last_name, e.department_id, d.department_name
       from employees e
       full outer join departments d
@@ -1467,7 +1467,7 @@ cross join departments;
       Hartstein                            20 Marketing
       Fay                                  20 Marketing
       Higgins                             110 Accounting
-      Gietz                               110 Accounting
+      Gietz                               110 Accounting		
       
       LAST_NAME                 DEPARTMENT_ID DEPARTMENT_NAME
       ------------------------- ------------- ------------------------------
@@ -1478,7 +1478,357 @@ cross join departments;
 
 ## 第六章	分组函数
 
+分组函数作用于一个数据，并对一组数据返回一个值。**组函数忽略空值**
+
+### 组函数类型
+
+	- AVG：平均值，可以对数值型数据
+	- COUNT：数量，可以对任意数据类型使用
+	- MAX：最大值，可以对任意数据类型使用
+	- MIN：最小值，可以对任意数据类型使用
+	- SUM：求和，对数值型数据使用
+
+### 组函数语法
+
+   ``` sql
+SELECT	[column,] group_function(column), ...
+FROM		table
+[WHERE	condition]
+[GROUP BY	column]
+[ORDER BY	column];
+   ```
+
+### 组函数实例
+
+``` sql
+SQL> select avg(salary), max(salary), min(salary), sum(salary)
+  2  from employees
+  3  where job_id like '%REP%';
+
+AVG(SALARY) MAX(SALARY) MIN(SALARY) SUM(SALARY)
+----------- ----------- ----------- -----------
+       8150       11000        6000       32600
+```
+
+``` sql
+SQL> select count(*)
+  2  from employees
+  3  where department_id = 50;
+
+  COUNT(*)
+----------
+         5
+```
+
+在组函数中使用nvl函数，无法忽略空值。
+
+``` sql
+SQL> select avg(nvl(commission_pct, 0))          
+  2  from employees;
+
+AVG(NVL(COMMISSION_PCT,0))
+--------------------------
+                    0.0425
+
+SQL> select avg(commission_pct)
+  2  from employees;
+
+AVG(COMMISSION_PCT)
+-------------------
+             0.2125
+```
+
+``` sql
+SQL> select count(distinct(department_id))     #distinct 去重
+  2  from employees;
+
+COUNT(DISTINCT(DEPARTMENT_ID))
+------------------------------
+                             7
+
+SQL> select count(department_id)
+  2  from employees;
+
+COUNT(DEPARTMENT_ID)
+--------------------
+                  19
+```
+
+### 分组数据
+
+group by
+
+可以使用 group by字句将表中的数据分成若干组。
+
+``` sql
+SELECT	column, group_function(column)
+FROM		table
+[WHERE	condition]
+[GROUP BY	group_by_expression]
+[ORDER BY	column];
+# 明确：where一定放在from 后面
+```
+
+``` sql
+SQL> select department_id, avg(salary)           #一共有8个组，在部门中使用组函数
+  2  from employees
+  3  group by department_id;
+
+DEPARTMENT_ID AVG(SALARY)
+------------- -----------
+                     7000
+           90 19333.33333
+           20        9500
+          110       10150
+           50        3500
+           80 10033.33333
+           60        6400
+           10        4400
+
+8 rows selected
+
+
+SQL> select distinct department_id
+  2  from employees;
+
+DEPARTMENT_ID
+-------------
+
+           90
+           20
+          110
+           50
+           80
+           60
+           10
+
+8 rows selected
+```
+
+使用多个列进行分组
+
+```sql
+SQL> select department_id dept_id, job_id, sum(salary)
+  2  from employees
+  3  group by department_id, job_id
+  4  ;
+
+DEPT_ID JOB_ID     SUM(SALARY)
+------- ---------- -----------
+    110 AC_ACCOUNT        8300
+     90 AD_VP            34000
+     50 ST_CLERK         11700
+     80 SA_REP           19600
+     50 ST_MAN            5800
+     80 SA_MAN           10500
+    110 AC_MGR           12000
+     90 AD_PRES          24000
+     60 IT_PROG          19200
+     20 MK_MAN           13000
+        SA_REP            7000
+     10 AD_ASST           4400
+     20 MK_REP            6000
+     
+13 rows selected
+```
+
+<img src="F:\gitHub\Oracle\assets\2020-07-07 221150.jpg" style="zoom:80%;" />
+
+非法使用组函数
+
+1. 所有包含于select 列表中，而未包含于组函数的列都必须包含于group by 中
+
+``` sql
+select department_id, count(last_name)
+from employees
+
+ORA-00937: 単一グループのグループ関数ではありません。
+
+SQL> select department_id, count(last_name)
+  2  from employees
+  3  group by department_id;
+
+DEPARTMENT_ID COUNT(LAST_NAME)
+------------- ----------------
+                             1
+           90                3
+           20                2
+          110                2
+           50                5
+           80                3
+           60                3
+           10                1
+```
+
+2. 不能够在where 中使用组函数，可以在having 子句中使用组函数。
+
+``` sql
+SQL> select department_id, avg(salary)
+  2  from employees
+  3  group by department_id
+  4  having avg(salary) > 8000
+  5  ;
+
+DEPARTMENT_ID AVG(SALARY)
+------------- -----------
+           90 19333.33333
+           20        9500
+          110       10150
+           80 10033.33333
+```
+
+过滤分组：HAVING字句
+
+1. 行已经被分组
+
+2. 使用了组函数
+
+3. 满足having 字句中条件的分组将被显示。
+
+4. ``` sql
+   SELECT	column, group_function
+   FROM		table
+   [WHERE	condition]
+   [GROUP BY	group_by_expression]
+   [HAVING	group_condition]
+   [ORDER BY	column];
+   ```
+
+嵌套组函数
+
+​	显示各部门平均工资的最大值
+
+``` sql
+SQL> select max(avg(salary))
+  2  from employees
+  3  group by department_id;
+
+MAX(AVG(SALARY))
+----------------
+19333.3333333333
+```
+
+----
+
 ## 第七章	子查询
+
+在进行主查询之前，先进性的查询被称为子查询或内查询。
+
+- 子查询要包含在括号中
+
+- 将子查询放在比较条件的右侧
+
+- 单行操作符对应单行子查询，多行操作符对应多行子查询。
+
+  - 单行操作符
+    - 只返回一行结果，使用单行比较操作符。
+    - 等于(=)，大于(>)，大于等于(>=)，小于(<)，小于等于(<=)，不等于(<>)
+  - 多行操作符
+    - 返回多行结果，使用多行比较操作符。
+    - in 等于列表中任意一个， any 和子查询返回的某一个值比较， all 和子查询返回的所有值比较。
+  - 非法子查询  多行子查询不能够使用单行子查询比较符
+
+- ``` sql
+  --返回job_id 和141号员工相同，salary 比143好员工多的员工的姓名，job_id和工资
+  select last_name, job_id, salary
+  from employees
+  where job_id = (select job_id
+                 from employees
+                 where employee_id = 141)
+  and salary > ( select salary
+                 from employees
+                 where employee_id = 143)  
+                 
+  SQL> /
+  
+  LAST_NAME                 JOB_ID         SALARY
+  ------------------------- ---------- ----------
+  Rajs                      ST_CLERK      3500.00
+  Davies                    ST_CLERK      3100.00
+  
+  ```
+
+- ``` sql
+  --返回公司工资最少的员工的last_name ,job_id, salary
+  select last_name, job_id, salary
+  from employees
+  where salary = ( select min(salary)
+                   from employees)         
+  SQL> /
+  
+  LAST_NAME                 JOB_ID         SALARY
+  ------------------------- ---------- ----------
+  Vargas                    ST_CLERK      2500.00                 
+  ```
+
+- ``` sql
+  -- 查询最低工资大于50号部门最低工资的部门id和其最低工资
+  select department_id, min(salary)
+  from employees
+  group by department_id
+  having min(salary) > ( select min(salary)
+                         from employees
+                         where department_id = 50)    
+  SQL> /
+  
+  DEPARTMENT_ID MIN(SALARY)
+  ------------- -----------
+                       7000
+             90       17000
+             20        6000
+            110        8300
+             80        8600
+             60        4200
+             10        4400
+  
+  7 rows selected                       
+  ```
+
+- ```sql
+  --返回其它部门中比job_id为‘IT_PROG’部门任一工资低的员工的员工号、姓名，job_id，salary
+  select employee_id, last_name, job_id, salary
+  from employees
+  where salary < any ( select salary
+                       from employees
+                       where job_id = 'IT_PROG')
+  and job_id <> 'IT_PROG'
+  SQL> /
+  
+  EMPLOYEE_ID LAST_NAME                 JOB_ID         SALARY
+  ----------- ------------------------- ---------- ----------
+          144 Vargas                    ST_CLERK      2500.00
+          143 Matos                     ST_CLERK      2600.00
+          142 Davies                    ST_CLERK      3100.00
+          141 Rajs                      ST_CLERK      3500.00
+          200 Whalen                    AD_ASST       4400.00
+          124 Mourgos                   ST_MAN        5800.00
+          202 Fay                       MK_REP        6000.00
+          178 Grant                     SA_REP        7000.00
+          206 Gietz                     AC_ACCOUNT    8300.00
+          176 Taylor                    SA_REP        8600.00
+  
+  10 rows selected
+  ```
+
+- ``` sql
+  --返回其它部门中比job_id为‘IT_PROG’部门所有工资低的员工的员工号、姓名，job_id，salary
+  select employee_id, last_name, job_id, salary
+  from employees
+  where salary < all ( select salary
+                       from employees
+                       where job_id = 'IT_PROG')
+  and job_id <> 'IT_PROG'
+  SQL> /
+  
+  EMPLOYEE_ID LAST_NAME                 JOB_ID         SALARY
+  ----------- ------------------------- ---------- ----------
+          141 Rajs                      ST_CLERK      3500.00
+          142 Davies                    ST_CLERK      3100.00
+          143 Matos                     ST_CLERK      2600.00
+          144 Vargas                    ST_CLERK      2500.00
+  ```
+
+- 
 
 ## 第八章	创建和管理表
 
