@@ -1828,13 +1828,608 @@ MAX(AVG(SALARY))
           144 Vargas                    ST_CLERK      2500.00
   ```
 
-- 
+  ---
+  
+  
 
 ## 第八章	创建和管理表
 
+### 常见的数据类型
+
+| 对象   | 描述                             |
+| ------ | -------------------------------- |
+| 表     | 基本数据存储集合，由行和列组成。 |
+| 视图   | 从表中抽出的逻辑相关的数据集合。 |
+| 序列   | 提供有规律的数值。               |
+| 索引   | 提供查询的效率。                 |
+| 同义词 | 给对象其别名。                   |
+
+### Oracle 数据库中的表
+
+ 	1. 用户自定义的表
+     - 用户自己创建并维护的一组表
+     - 包含了用户所需的信息
+ 	2. 数据字典
+     - 由 Oracle Server 创建的一组表
+     - 包含数据库信息
+
+查询数据字典
+
+ - 查看用户自定义的表
+
+   ```sql
+   SQL> select table_name 
+     2  from user_tables;
+   
+   TABLE_NAME
+   ------------------------------
+   DEPT
+   EMP
+   BONUS
+   SALGRADE
+   JOB_GRADES
+   REGIONS
+   LOCATIONS
+   DEPARTMENTS
+   JOBS
+   EMPLOYEES
+   JOB_HISTORY
+   COUNTRIES
+   
+   12 rows selected
+   ```
+
+- 查看用户定义的各种数据库对象
+
+  ```sql
+  SQL> select distinct object_type
+    2  from user_objects;
+  
+  OBJECT_TYPE
+  -------------------
+  SEQUENCE
+  INDEX
+  TABLE
+  ```
+
+- 查看用户定义的表、视图、同义词和序列
+
+  ```sql
+  SQL> select * 
+    2  from user_catalog;
+  
+  TABLE_NAME                     TABLE_TYPE
+  ------------------------------ -----------
+  BONUS                          TABLE
+  COUNTRIES                      TABLE
+  DEPARTMENTS                    TABLE
+  DEPARTMENTS_SEQ                SEQUENCE
+  DEPT                           TABLE
+  EMP                            TABLE
+  EMPLOYEES                      TABLE
+  EMPLOYEES_SEQ                  SEQUENCE
+  JOBS                           TABLE
+  JOB_GRADES                     TABLE
+  JOB_HISTORY                    TABLE
+  LOCATIONS                      TABLE
+  LOCATIONS_SEQ                  SEQUENCE
+  REGIONS                        TABLE
+  SALGRADE                       TABLE
+  ```
+
+命名规则
+
+	- 必须以字母开头。
+	- 必须在1- 30 个字符之间。
+	- 必须只能包含 A-Z,a-z，0-9, _, $, 和#
+	- 必须不能够和用户自定义的其它对象重名
+	- 必须不能是Oracle 保留字
+
+### CREATE TABLE 语句
+
+	- 必须由创建表的权限
+	- 存储空间
+	- 必须指定表名，列名，数据类型，尺寸
+
+创建表
+
+- 语法
+
+  ``` sql
+  CREATE TABLE dept	(deptno 	NUMBER(2),
+  		dname 	VARCHAR2(14),
+  		loc 	VARCHAR2(13));
+  
+  ```
+
+- 实例
+
+  ``` sql
+  SQL> create table car
+    2  (carno number(2),
+    3   carname varchar2(255),
+    4  caraddress varchar2(255));
+  
+  Table created
+  ```
+
+### 数据类型
+
+| 数据类型             | 描述                                   |
+| -------------------- | -------------------------------------- |
+| **varchar2（size）** | 可变长字符数据                         |
+| **char（size）**     | 定长字符数据                           |
+| **number（p，s）**   | 可变长数值数据                         |
+| **date**             | 日期型数据                             |
+| long                 | 可变长字符数据，最大可达2G             |
+| colb                 | 字符数据，最大可达4G                   |
+| raw                  | 原始的二进制数据                       |
+| **blob**             | 二进制数据，最大可达4G                 |
+| BFILE                | 存储二进制文件的二进制数据，最大可达4G |
+| rowid                | 行地址                                 |
+
+### 使用子查询创建表
+
+ - 使用 as subquery 选项，将创建表和插入数据结合起来
+
+ - 指定的列和子查询的列要一一对应。
+
+ - 通过列名和默认值来定义列。
+
+ - 语法
+
+   ``` sql
+   CREATE TABLE table
+     	  [(column, column...)]
+   AS subquery;                      #subquery 子语句
+   ```
+
+- 实例
+
+  ```
+  SQL> create table dept80
+    2  as
+    3         select employee_id, last_name, salary*12 annsal, hire_date
+    4         from employees
+    5         where department_id = 80;
+  
+  Table created
+  
+  
+  SQL> desc dept80
+  Name        Type         Nullable Default Comments 
+  ----------- ------------ -------- ------- -------- 
+  EMPLOYEE_ID NUMBER(6)    Y                         
+  LAST_NAME   VARCHAR2(25)                           
+  ANNSAL      NUMBER       Y                         
+  HIRE_DATE   DATE           
+  ```
+
+### ALTER TABLE语句
+
+ - 追加新的列
+
+   - ```sql
+     ALTER TABLE table
+     ADD		   (column datatype [DEFAULT expr]
+     		   [, column datatype]...);
+     ```
+
+   - ```sql
+     SQL> alter table dept80
+       2  add ( department_name varchar2(255));
+     
+     Table altered
+     
+     
+     SQL> desc dept80;
+     Name            Type          Nullable Default Comments 
+     --------------- ------------- -------- ------- -------- 
+     EMPLOYEE_ID     NUMBER(6)     Y                         
+     LAST_NAME       VARCHAR2(25)                            
+     ANNSAL          NUMBER        Y                         
+     HIRE_DATE       DATE                                    
+     DEPARTMENT_NAME VARCHAR2(255) Y      							#新追加的列
+     ```
+
+ - 修改现有的列
+
+    - ```sql
+      ALTER TABLE table
+      MODIFY	   (column datatype [DEFAULT expr]
+      		   [, column datatype]...);
+      ```
+
+    - ``` sql
+      SQL> alter table dept80
+        2  modify (employee_id number(20));                          #将大小改为20
+      
+      Table altered
+      
+      
+      SQL> desc dept80;
+      Name            Type          Nullable Default Comments 
+      --------------- ------------- -------- ------- -------- 
+      EMPLOYEE_ID     NUMBER(20)    Y                                #修改成功
+      LAST_NAME       VARCHAR2(25)                            
+      ANNSAL          NUMBER        Y                         
+      HIRE_DATE       DATE                                    
+      DEPARTMENT_NAME VARCHAR2(255) Y  
+      ```
+
+ - 为新追加的列定义默认值
+
+ - 删除一个列
+
+    - ```sql
+      ALTER TABLE table
+      DROP COLUMN  column_name;
+      ```
+
+    - ```sql
+      SQL> alter table dept80
+        2  drop column department_name;
+      
+      Table altered
+      
+      
+      SQL> desc dept80
+      Name        Type         Nullable Default Comments 
+      ----------- ------------ -------- ------- -------- 
+      EMPLOYEE_ID NUMBER(20)   Y                         
+      LAST_NAME   VARCHAR2(25)                           
+      ANNSAL      NUMBER       Y                         
+      HIRE_DATE   DATE       
+      ```
+
+ - 重命名表的一个列
+
+   - ``` sql
+     ALTER TABLE table_name RENAME COLUMM old_column_name 
+     TO new_column_name
+     ```
+
+   - ``` sql
+     SQL> alter table dept80                                    #操作alter语句的时候都需要确定操作那个表格，
+       2  rename column employee_id to id;
+     
+     Table altered
+     
+     
+     SQL> desc table dept80;
+     Object table dept80 does not exist.
+     
+     SQL> desc dept80
+     Name      Type         Nullable Default Comments 
+     --------- ------------ -------- ------- -------- 
+     ID        NUMBER(20)   Y                         
+     LAST_NAME VARCHAR2(25)                           
+     ANNSAL    NUMBER       Y                         
+     HIRE_DATE DATE  
+     ```
+
+### 删除表
+
+ - 数据和数据结构都被删除
+
+ - 所有正在运行的相关事务都会被提交
+
+ - 所有相关索引都会被删除
+
+ - DROP TABLE 语句不能够被回滚
+
+ - ```sql
+   SQL> drop table dept80;
+   
+   Table dropped
+   ```
+
+### 清空表
+
+ - 删除表中所有数据
+
+ - 释放表的存储空间
+
+ - truncate 语句不能够回滚
+
+ - 可以使用delete 语句删除数据，可以回滚
+
+ - ```sql
+   SQL> select * from dept80;
+   
+   EMPLOYEE_ID LAST_NAME                 JOB_ID
+   ----------- ------------------------- ----------
+           149 Zlotkey                   SA_MAN
+           174 Abel                      SA_REP
+           176 Taylor                    SA_REP
+   
+   SQL> truncate table dept80;
+   
+   Table truncated
+   
+   
+   SQL> select * from dept80;
+   
+   EMPLOYEE_ID LAST_NAME                 JOB_ID
+   ----------- ------------------------- ---------
+   ```
+
+---
+
 ## 第九章	数据处理
 
-## 第十章	约束
+数据操纵语言
+
+DML（Data Manipulation Language）可以实现向表中插入数据，修改数据，删除数据，完成事务（由若干项工作的DML语句组成的）
+
+### 插入数据
+
+ - insert 语法
+
+ - ``` sql
+   INSERT INTO	table [(column [, column...])]      #使用该语法一次只能向表中插入一条数据。
+   VALUES		(value [, value...]);
+   ```
+
+   - 为每一列添加一个新值
+   - 按列的默认顺序列出各个列的值
+   - 在INSERT 字句中随意列出列名和他们的值
+   - 字符和日期数据应该包含在单引号中。
+
+- 向表中插入空值
+
+  - 隐式方式
+
+     ``` sql
+      SQL> insert into departments (department_id, department_name)
+        2  values (30, 'Purchasing');
+      
+      1 row inserted
+     ```
+
+  - 显示方式
+
+    ``` sql
+    SQL> insert into departments
+      2  values (100, 'zhangsan', NULL, null);
+    
+    1 row inserted
+    ```
+
+
+### 更新数据
+
+update 语法
+
+``` sql
+UPDATE		table
+SET		column = value [, column = value, ...]
+[WHERE 		condition];
+```
+
+- 使用where 字句指定要更新的数据
+- 如果省略where 字句，则表示所有数据都将被更新
+
+### 删除数据
+
+delete 语法
+
+``` sql
+delete from table
+[where condition];
+```
+
+### 数据库事务管理
+
+commit
+
+rollback
+
+## 第十章	约束 CONSTRAINT
+
+约束时表级的强制规定,如果不指定约束名，Oracle server 自动安装sys_cn的格式指定约束名。
+
+约束在创建和创建之后都可以设置，有列级和表级两种。可以通过数据字典视图来查看约束。
+
+有以下五种约束：
+
+1. NOT NULL 只可以作用在列上
+2. UNIQUE
+3. PRIMARY KEY
+4. FOREIGN KEY
+5. CHECK
+
+语法
+
+ 1. 创建表是定义
+
+    ``` sql
+    CREATE TABLE [schema.]table
+    	    (column datatype [DEFAULT expr]
+    		[column_constraint],
+    		...
+    		[table_constraint][,...]);
+    		
+    CREATE TABLE employees(
+      	     employee_id  NUMBER(6),
+        	     first_name   VARCHAR2(20),
+      	     ...
+      	     job_id       VARCHAR2(10) NOT NULL,
+    	     CONSTRAINT emp_emp_id_pk 
+    		           	PRIMARY KEY (EMPLOYEE_ID));
+    
+    ```
+
+	2. 列级
+
+    ```sql
+    column [CONSTRAINT constraint_name] constraint_type,
+    ```
+
+	3. 表级
+
+    ```sql
+    column,...
+      [CONSTRAINT constraint_name] constraint_type
+      (column, ...),
+    ```
+
+### 非空约束
+
+用not null约束的字段不能为null值，**必须给定具体的数据**
+
+``` sql
+SQL> create table emp3(
+  2   id number(3) not null,                      #系统命名
+  3   last_name varchar2(255),                       
+  4   hire_date date
+  5             constraint emp3_constrain_nn      #用户命名
+  6             not null);
+
+Table created
+
+
+SQL> desc emp3
+Name      Type          Nullable Default Comments 
+--------- ------------- -------- ------- -------- 
+ID        NUMBER(3)                               
+LAST_NAME VARCHAR2(255) Y                         
+HIRE_DATE DATE   
+```
+
+### 唯一约束
+
+unique约束的字段，具有唯一性，不可重复，但可以为null
+
+``` sql
+alter table emp3 
+add ( email varchar2(255) unique,
+      address varchar2(255)
+      constraint emp3_constraint_un
+      unique)
+
+Name      Type          Nullable Default Comments 
+--------- ------------- -------- ------- -------- 
+ID        NUMBER(3)                               
+LAST_NAME VARCHAR2(255) Y                         
+HIRE_DATE DATE                                    
+EMAIL     VARCHAR2(255) Y                         
+ADDRESS   VARCHAR2(255) Y  
+```
+
+### 主键约束
+
+表在设计的时候一定要有主键
+
+ 1. 主键涉及术语
+
+    - 主键约束
+    - 主键字段
+    - 主键值
+
+ 2. 以上三种术语关系
+
+    表中的某个字段添加主键约束之后，该字段为主键字段，主键字段中出现的每一个值称为主键值。
+
+	3. 主键值和“not null unique” 的区别
+
+    给某个字段添加了主键约束之后，该字段不能重复也不能够为空，效果和“NOT NULL UNIQUE”相同，但是其本质是不同的。
+
+    主键约束除了可以做到“not null unique”之外呢，还会默认添加到索引（index）中。
+
+	4. 一张表应该有主键字段，如果没有该表无效
+
+    - 主键值：是当前行数据的唯一标识
+    - 即使表中两条相同的数据，但是因为主键值的不同，也被视为两条数据。
+
+	5. 按照主键约束字段的多少可以分类
+
+    无论是单一主键还是复合主键，一张表的主键约束只能够有一个，但是可以有好几个约束字段
+
+    - 单一主键：一个字段添加主键约束
+    - 复合主键：多个字段添加主键约束
+
+	6. 实例
+
+    ``` sql
+    SQL> create table emp3 （          #列级定义
+      2  id number(5) primary key,
+      3  last_name varchar(255));
+    
+    Table created
+    ```
+
+    ```sql
+    create table emp4 (				  #表集定义，复合主键
+    id number(7),
+    name varchar(255),
+    email varchar2(255),
+    constraint emp4_constraint_pk primary key(id, name))
+    ```
+
+    
+
+### 外键约束
+
+只能是表级定义。什么是外键？若有两个表A、B，id是A的主键，而B中也有id字段，则id就是表B的外键，外键约束主要用来维护两个表之间数据的一致性。
+
+A为基本表，B为信息表
+
+1. 外键设计术语
+   - 外键约束
+   - 外键字段
+   - 外键值
+2. 某个字段添加外键约束之后，该字段被成为外键字段，其字段内的值被称为外键值。
+3. 分类可以分为单一外键，和复合外键。
+4. 一张表中可以有多个外键，这个和主键是不同的。
+
+检查约束
+
+定义每一行必须满足的条件。之在oracle中存在。
+
+### 添加约束
+
+```sql
+SQL> alter table emp4
+  2  add (address varchar2(255) not null);
+```
+
+### 删除约束
+
+``` sql
+SQL> alter table emp4
+  2  drop constraint SYS_C0011148;       #系统默认名字
+```
+
+### 无效化约束
+
+``` sql
+alter table emp4
+disable constraint emp4_constraint_nn
+```
+
+### 有效话约束
+
+``` sql
+alter table emp4
+enable constraint emp4_constraint_nn
+
+```
+
+### 查询约束
+
+``` sql
+SQL> select constraint_name, constraint_type, search_condition
+  2  from user_constraints
+  3  where table_name = 'emp4';
+
+CONSTRAINT_NAME                CONSTRAINT_TYPE SEARCH_CONDITION
+------------------------------ --------------- --------------------
+```
+
+---
+
+
 
 ## 第十一章	视图
 
