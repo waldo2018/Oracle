@@ -2433,6 +2433,111 @@ CONSTRAINT_NAME                CONSTRAINT_TYPE SEARCH_CONDITION
 
 ## 第十一章	视图
 
+什么是视图
+
+- 视图是一种虚表
+- 视图建立在已有表的基础上，视图赖以建立的这些表称为基表。
+- 向视图提供数据内容的语句称为select 语句，可以将视图视为存储起来的select 语句。
+- 视图向用户提供基表数据的另外一种表现方式。
+
+为什么使用视图
+
+- 控制数据访问
+- 简化查询
+- 避免重复访问相同的数据
+
+简单视图和复杂视图的对比
+
+| 特性     | 简单视图 | 复杂视图   |
+| -------- | -------- | ---------- |
+| 表的数量 | 一个     | 一个或多个 |
+| 函数     | 没有     | 有         |
+| 分组     | 没有     | 有         |
+| DML      | 可以     | 有时可以   |
+
+如何创建视图
+
+- 在 CREATE VIEW 语句中嵌入子查询
+
+  ``` sql
+  CREATE [OR REPLACE] [FORCE|NOFORCE] VIEW view
+    [(alias[, alias]...)]
+   AS subquery
+  [WITH CHECK OPTION [CONSTRAINT constraint]]
+  [WITH READ ONLY [CONSTRAINT constraint]];
+  ```
+
+- 举例
+
+  ``` sql
+  SQL> create view empvu80
+    2  as select employee_id, last_name, salary
+    3     from employees
+    4     where department_id = 80;
+  create view empvu80
+  as select employee_id, last_name, salary
+     from employees
+     where department_id = 80
+  
+  ORA-01031: 権限が不足しています。                    #使用sqlplus登录system用户，使用命令grant create view to scott;
+  
+  SQL> ed
+  SQL> /
+  
+  View created
+  
+  
+  SQL> desc empvu80
+  Name        Type         Nullable Default Comments 
+  ----------- ------------ -------- ------- -------- 
+  EMPLOYEE_ID NUMBER(6)                              
+  LAST_NAME   VARCHAR2(25)                           
+  SALARY      NUMBER(8,2)  Y    
+  ```
+
+  ``` sql
+  SQL> desc empvu80
+  Name        Type         Nullable Default Comments 
+  ----------- ------------ -------- ------- -------- 
+  EMPLOYEE_ID NUMBER(6)                              
+  LAST_NAME   VARCHAR2(25)                           
+  SALARY      NUMBER(8,2)  Y                         
+  
+  SQL> create view salvu50
+    2  as select employee_id ID_NUMBER, last_name NAME,
+    3            salary * 12 ANN_SALARY
+    4     from employees
+    5     where department_id = 50;
+  
+  View created
+  
+  
+  SQL> select * from salvu50;
+  
+  ID_NUMBER NAME                      ANN_SALARY
+  --------- ------------------------- ----------
+        124 Mourgos                        69600
+        141 Rajs                           42000
+        142 Davies                         37200
+        143 Matos                          31200
+        144 Vargas                         30000
+  ```
+
+修改视图
+
+使用create or replace view 字句修改视图，create view 字句中的各列的别名应和子查询中各列相对应。
+
+``` sql
+CREATE OR REPLACE VIEW empvu80
+  (id_number, name, sal, department_id)
+AS SELECT  employee_id, first_name || ' ' || last_name, 
+           salary, department_id
+   FROM    employees
+   WHERE   department_id = 80;
+```
+
+
+
 ## 第十二章	其他数据对象
 
 
